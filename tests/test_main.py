@@ -6,7 +6,11 @@ from unittest.mock import patch
 
 import asynctest
 import pytest
-from constellations.main import Client, FileConfigFactory, Server, main
+
+from constellations.client import Client
+from constellations.config import FileConfigFactory
+from constellations.main import main
+from constellations.server import Server
 
 
 class TestFileConfigFactory:
@@ -22,7 +26,7 @@ class TestFileConfigFactory:
             is_file_mock.return_value = True
             file_config = FileConfigFactory.create_out(**data)
             assert file_config.path == data['path']
-            assert file_config.peer == 'peer_address'
+            assert file_config.ip == 'peer_address'
             assert file_config.port == 8080
             assert file_config.hash_sum == data['hash_sum']
             assert file_config.chunks == data['chunks']
@@ -188,7 +192,7 @@ def test_main():
     with patch('asyncio.unix_events._UnixSelectorEventLoop.run_forever'), patch(
         'asyncio.start_server'
     ) as start_server_mock, patch('pathlib.Path.open'), patch(
-        'constellations.main.Server.handle_client'
+        'constellations.server.Server.handle_client'
     ) as handle_client_mock, patch(
         'yaml.safe_load'
     ) as safe_load_mock:
