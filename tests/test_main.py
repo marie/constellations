@@ -6,7 +6,6 @@ from unittest.mock import patch
 
 import asynctest
 import pytest
-
 from constellations.client import Client
 from constellations.config import FileConfigFactory
 from constellations.main import main

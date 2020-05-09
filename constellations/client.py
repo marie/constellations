@@ -1,9 +1,13 @@
 import asyncio
+import logging
 import shutil
+import socket
 from pathlib import Path
 from typing import Tuple
 
 from constellations.config import FileConfigOut
+
+logger = logging.getLogger(__name__)
 
 
 class Client:
@@ -16,11 +20,15 @@ class Client:
         reader, writer = await self.connect_to_client()
 
         try:
+            logger.debug(f'{self._file_config_out.hash_sum}: Sending hash sum of file.')
             writer.write(self._file_config_out.hash_sum.encode('utf8'))
             await writer.drain()
 
             response = await asyncio.wait_for(reader.read(self._chunk_size), 3.0)
+            logger.debug(f'{self._file_config_out.hash_sum}: Got response: {response}.')
+
             if response.decode('utf8') != 'ok':
+                logger.info(f'{self._file_config_out.hash_sum}: Can\'t get the file from remote server.')
                 raise Exception(
                     'Error while fetching the file %s' % self._file_config_out.__dict__
                 )
@@ -40,7 +48,10 @@ class Client:
                     self._file_config_out.ip, self._file_config_out.port
                 )
                 return reader, writer
-            except ConnectionRefusedError:
+            except OSError as e:
+                logger.info(
+                    '%s: %s:%d', e, self._file_config_out.ip, self._file_config_out.port
+                )
                 await asyncio.sleep(5)
 
     def create_folder_with_chunks(self) -> Path:
@@ -61,10 +72,13 @@ class Client:
         for i in range(0, self._file_config_out.chunks):
             chunk_file = folder_with_chunks / str(i)
             if not chunk_file.is_file():
+                logger.debug(f'Sending a chunk id: {i}')
                 writer.write(str(i).encode('utf8'))
                 await writer.drain()
+
                 response = await asyncio.wait_for(reader.read(self._chunk_size), 3.0)
 
+                logger.debug(f'Write chunk to a file')
                 with chunk_file.open('w') as opened_file:
                     opened_file.write(response.decode('utf8'))
 

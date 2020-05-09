@@ -53,7 +53,7 @@ class FileConfigFactory:
         succeed = re.match(r'^[\w]*:[\d]*$', peer)
         if not succeed:
             raise ValueError(
-                'Peer\'s address must be defined as ip:port. Got %s' % peer
+                f'Peer\'s address must be defined as ip:port. Got {peer}'
             )
 
         return FileConfigOut(str(file), peer, hash_sum, chunks)

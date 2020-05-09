@@ -1,8 +1,11 @@
 import asyncio
+import logging
 from pathlib import Path
-from typing import Optional, List
+from typing import List, Optional
 
 from constellations.config import FileConfigIn
+
+logger = logging.getLogger(__name__)
 
 
 class Server:
@@ -19,7 +22,8 @@ class Server:
         if not file_information:
             writer.write('error'.encode('utf8'))
             writer.close()
-            raise FileNotFoundError('File with hash_sum %s not found' % hash_sum)
+            logger.info(f'File with hash_sum {hash_sum} not found')
+            raise FileNotFoundError(f'File with hash_sum {hash_sum} not found')
 
         writer.write('ok'.encode('utf8'))
         await writer.drain()
@@ -39,6 +43,7 @@ class Server:
         with file.open() as opened_file:
             while True:
                 chunk_id = (await reader.read(32)).decode('utf8')
+                logger.debug(f'Got chunk id: {chunk_id}')
 
                 if not chunk_id:
                     writer.close()
@@ -46,5 +51,7 @@ class Server:
 
                 opened_file.seek(int(chunk_id) * self._chunk_size)
                 chunk = opened_file.read(self._chunk_size)
+
+                logger.debug(f'Sending a chunk')
                 writer.write(chunk.encode('utf8'))
                 await writer.drain()

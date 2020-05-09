@@ -74,3 +74,6 @@ reference/
 
 # Collection of sharing files
 collection/
+
+# Logging
+*.log
