@@ -28,7 +28,7 @@ RUN pip install --no-compile --upgrade pip \
  && poetry install --no-dev --no-interaction --no-ansi \
  && pip uninstall --yes poetry
 
-COPY example_collection /collection
+COPY example_collection /code/collection
 RUN echo "Hello, world" > /tmp/hello_world_book_for_sharing
 
 COPY constellations /code/constellations

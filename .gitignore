@@ -71,3 +71,6 @@ allure-results/
 # Documentation
 _build/
 reference/
+
+# Collection of sharing files
+collection/
