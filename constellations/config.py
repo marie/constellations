@@ -50,7 +50,7 @@ class FileConfigFactory:
         if not file.is_file():
             file.touch()
 
-        succeed = re.match(r'^[\w]*:[\d]*$', peer)
+        succeed = re.match(r'^[\w\d.]*:[\d]*$', peer)
         if not succeed:
             raise ValueError(
                 f'Peer\'s address must be defined as ip:port. Got {peer}'
